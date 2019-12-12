@@ -172,6 +172,7 @@ class Session {
                 .getElementAttribute(urlVariables.attributeName);
               break;
             case COMMANDS.EXECUTE_SCRIPT:
+              console.log('IN EXECUTE SCRIPT');
               if (!this.browser.dom.window) throw new NoSuchWindow();
               const value: unknown = await this.executeScript(
                 parameters.script,
@@ -203,6 +204,8 @@ class Session {
               response = { value: isEnabled };
               break;
             case COMMANDS.ELEMENT_IS_DISPLAYED:
+              console.log('IN IS DISPLAYED');
+              console.log('IS DISPLAYED EL:', urlVariables.elementId);
               if (!this.browser.dom.window) throw new NoSuchWindow();
               const { element }: WebElement = this.browser.getKnownElement(
                 urlVariables.elementId,

@@ -1,7 +1,8 @@
 import { Pluma } from '../Types/types';
 import * as PlumaError from '../Error/errors';
 import * as fs from 'fs';
-import { isDisplayedAtom } from '../constants/isdisplayed-atom';
+import * as isDisplayedAtom from '../constants/isdisplayed-atom.json';
+import * as UglifyJS from 'uglify-js';
 
 // credit where it's due: https://stackoverflow.com/questions/36836011/checking-validity-of-string-literal-union-type-at-runtime/43621735
 export const StringUnion = <UnionType extends string>(
@@ -110,13 +111,30 @@ export const endpoint = {
 };
 
 export const handleSeleniumIsDisplayedRequest = (req, _res, next) => {
-  if (
-    req.body.script.replace(/(\n| )/g, '') ===
-    isDisplayedAtom.replace(/(\n| )/g, '')
-  ) {
-    req.url = `/session/${req.params.sessionId}/element/${req.body.args['element-6066-11e4-a52e-4f735466cecf']}/displayed`;
+  const pattern = /[\n, ]/g;
+  // const incoming = req.body.script.normalize().replace(pattern, '');
+  // const stored = isDisplayedAtom.normalize().replace(pattern, '');
+
+  const incoming = JSON.stringify(req.body.script);
+  const stored = JSON.stringify(isDisplayedAtom);
+  // const incoming = UglifyJS.minify(req.body.script).code;
+  // const stored = UglifyJS.minify(isDisplayedAtom).code;
+
+  fs.writeFileSync('./incoming.json', incoming);
+  fs.writeFileSync('./stored.json', stored);
+  fs.writeFileSync('./headers', JSON.stringify(req.headers));
+  if (incoming === stored) {
+    console.log('MATCHED');
+    const [
+      { ['element-6066-11e4-a52e-4f735466cecf']: elementId },
+    ] = req.body.args;
+    req.url = `/session/${req.params.sessionId}/element/${elementId}/displayed`;
+    console.log('UTILS ARGS:', req.body.args);
+    console.log('UTILS EL:', elementId);
+    req.method = 'GET';
     next('route');
   } else {
+    console.log('DID NOT MATCH');
     next();
   }
 };
