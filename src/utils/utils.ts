@@ -115,8 +115,8 @@ export const handleSeleniumIsDisplayedRequest = (req, _res, next) => {
   // const incoming = req.body.script.normalize().replace(pattern, '');
   // const stored = isDisplayedAtom.normalize().replace(pattern, '');
 
-  const incoming = JSON.stringify(req.body.script);
-  const stored = JSON.stringify(isDisplayedAtom);
+  const incoming = req.body.script;
+  const stored = isDisplayedAtom;
   // const incoming = UglifyJS.minify(req.body.script).code;
   // const stored = UglifyJS.minify(isDisplayedAtom).code;
 
